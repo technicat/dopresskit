@@ -198,7 +198,7 @@ echo '<!DOCTYPE html>
 			<div class="uk-grid">
 				<div id="navigation" class="uk-width-medium-1-4">
 					<h1 class="nav-header">'. COMPANY_TITLE .'</h1>
-					<a class="nav-header" href="http://'. parseLink(COMPANY_WEBSITE) .'">'. trim( parseLink(COMPANY_WEBSITE), "/") .'</a>
+					<a class="nav-header" href="'. COMPANY_WEBSITE .'">'. trim( parseLink(COMPANY_WEBSITE), "/") .'</a>
 
 					<ul class="uk-nav uk-nav-side">
 						<li><a href="#factsheet">Factsheet</a></li>
@@ -239,7 +239,7 @@ echo '					<div class="uk-grid">
 							</p>
 							<p>
 								<strong>Website:</strong><br/>
-								<a href="http://'. parseLink(COMPANY_WEBSITE) .'">'. parseLink(COMPANY_WEBSITE) .'</a>
+								<a href="'. COMPANY_WEBSITE .'">'. parseLink(COMPANY_WEBSITE) .'</a>
 							</p>
 							<p>
 								<strong>Press / Business Contact:</strong><br/>
@@ -257,7 +257,7 @@ for( $i = 0; $i < count($socials); $i++ )
 		if( $child->getName() == "name" ) $name = $child;
 		else if( $child->getName() == "link" ) $link = $child;
 	}
-	echo( '<a href="http://'.parseLink($link).'">'.$name.'</a><br/>' );
+	echo( '<a href="'.$link.'">'.$name.'</a><br/>' );
 }
 
 echo '							</p>
@@ -286,10 +286,7 @@ if( count($address) > 0 )
 }
 
 echo'							</p> 
-							<p>
-								<strong>Phone:</strong><br/>
-								'. COMPANY_PHONE .'
-							</p>
+						
 						</div>
 						<div class="uk-width-medium-4-6">
 							<h2 id="description">Description</h2>
@@ -419,7 +416,7 @@ if ($handle = opendir('images'))
 	/* This is the correct way to loop over the directory. */
 	while (false !== ($entry = readdir($handle)))
 	{
-		if( substr($entry,-4) == ".png" || substr($entry,-4) == ".gif" )
+		if( substr($entry,-4) == ".png" )
 		{
 			if( substr($entry,0,4) != "logo" && substr($entry,0,4) != "icon" && substr($entry,0,6) != "header" )
 			{	
@@ -515,7 +512,7 @@ if( count($quotes) > 0 )
 			}
 		}
 	
-		echo '<li>"'.$description.'"<br/><cite>- '.$name.', <a href="http://'.parseLink($link).'/">'.$website.'</a></cite></li></li>';
+		echo '<li>"'.$description.'"<br/><cite>- '.$name.', <a href="'.$link.'/">'.$website.'</a></cite></li></li>';
 	}
 	
 	echo '</ul><hr>';
@@ -545,7 +542,7 @@ if( count($additionals) > 0 ) {
 		
 		echo '<p>
 		<strong>'.$title.'</strong><br/>
-		'.$description.' <a href="http://'.parseLink($link).'" alt="'.parseLink($link).'">'.$linkTitle.'</a>.
+		'.$description.' <a href="'.$link.'" alt="'.parseLink($link).'">'.$linkTitle.'</a>.
 	</p>';
 
 	}
@@ -581,7 +578,7 @@ for( $i = 0; $i < count($credits); $i++ )
 	}
 	else
 	{
-		echo '<strong>'.$person.'</strong><br/><a href="http://'.parseLink($website).'/">'.$role.'</a>';
+		echo '<strong>'.$person.'</strong><br/><a href="'.$website.'/">'.$role.'</a>';
 	}
 
 	echo '</p>';
@@ -611,7 +608,7 @@ for( $i = 0; $i < count($contacts); $i++ )
 		echo '<strong>'.$name.'</strong><br/><a href="mailto:'.$mail.'">'.$mail.'</a>';
 	}
 	if( strlen($link) > 0 && strlen($mail) == 0 ) {
-		echo '<strong>'.$name.'</strong><br/><a href="http://'.parseLink($link).'">'.parseLink($link).'</a>';
+		echo '<strong>'.$name.'</strong><br/><a href="'.$link.'">'.parseLink($link).'</a>';
 	}
 
 	echo '</p>';
