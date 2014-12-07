@@ -115,6 +115,15 @@ foreach( $xml->children() as $child )
 				$i++;
 			}
 			break;
+		case("apps"):
+			$apps = array();
+			$i = 0;
+			foreach( $child->children() as $subchild )
+			{
+				$apps[$i][$subchild->getName()] = $subchild;
+				$i++;
+			}
+			break;
 		case("prices"):
 			$prices = array();
 			$i = 0;
@@ -278,10 +287,12 @@ function parseLink($uri)
         $parsed = substr($parsed, 8);
     if( strpos($parsed, "www.") === 0 )
         $parsed = substr($parsed, 4);
-    if( strrpos($parsed, "/") == strlen($parsed) - 1)
-        $parsed = substr($parsed, 0, strlen($parsed) - 1);
-    if( substr($parsed,-1,1) == "/" )
-    	$parsed = substr($parsed, 0, strlen($parsed) - 1);
+ //   if( strrpos($parsed, "/") == strlen($parsed) - 1)
+ //       $parsed = substr($parsed, 0, strlen($parsed) - 1);
+  //  if( substr($parsed,-1,1) == "/" )
+  //  	$parsed = substr($parsed, 0, strlen($parsed) - 1);
+    if( strpos($parsed, "/"))
+    	$parsed = substr($parsed, 0, strpos($parsed, "/"));
     
     return $parsed;
 }
@@ -291,8 +302,42 @@ echo '<!DOCTYPE html>
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		
-		<title>'. COMPANY_TITLE .'</title>
+
+		<meta name="twitter:card" content="app">
+<meta name="twitter:creator" content="@fugugames">
+<meta name="twitter:site" content="@fugugames">
+<meta name="twitter:title" content="'.GAME_TITLE.'">
+<meta name="twitter:description" content="'.GAME_DESCRIPTION.'">
+<meta name="twitter:image:src" content="images/header.png">';
+
+
+for( $i = 0; $i < count($apps); $i++ )
+{
+	$name = $link = "";
+	foreach( $apps[$i]['app']->children() as $child )
+	{
+
+		switch( $child->getName()) {
+			case "name":
+				$name = $child;
+			break;
+			case "url":
+				$url = $child;
+				break;
+			case "platform":
+				$platform= $child;
+				break;
+			case "id":
+				$id= $child;
+				break;
+		}
+	}
+	echo '<meta name="twitter:app:name:'.$platform.'" content="'.$name.'">'.PHP_EOL;
+	echo '<meta name="twitter:app:url:'.$platform.'" content="'.$url.'">'.PHP_EOL;
+	echo '<meta name="twitter:app:id:'.$platform.'" content="'.$id.'">'.PHP_EOL;
+}
+
+echo  '<title>'. COMPANY_TITLE .'</title>
 		<link href="http://cdnjs.cloudflare.com/ajax/libs/uikit/1.2.0/css/uikit.gradient.min.css" rel="stylesheet" type="text/css">
 		<link href="style.css" rel="stylesheet" type="text/css">
 	</head>
@@ -355,13 +400,13 @@ for( $i = 0; $i < count($platforms); $i++ )
 			$link = $child;
 		}
 	}
-	echo '<a href="http://'.parseLink($link).'">'.$name.'</a><br/>';
+	echo '<a href="'.$link.'">'.$name.'</a><br/>';
 }
 
 echo '							</p>
 							<p>
 								<strong>Website:</strong><br/>
-								<a href="http://'. parseLink(GAME_WEBSITE) .'">'. parseLink(GAME_WEBSITE) .'</a>
+								<a href="'.GAME_WEBSITE.'">'. parseLink(GAME_WEBSITE) .'</a>
 							</p>
 							<p>
 								<strong>Regular Price:</strong><br/>';
@@ -535,7 +580,7 @@ if ($handle = opendir($game.'/images'))
 	/* This is the correct way to loop over the directory. */
 	while (false !== ($entry = readdir($handle)))
 	{
-		if( substr($entry,-4) == ".png" || substr($entry,-4) == ".gif" )
+		if( substr($entry,-4) == ".png" )
 		{
 			if( substr($entry,0,4) != "logo" && substr($entry,0,4) != "icon" && substr($entry,0,6) != "header" )
 			{	
@@ -660,7 +705,7 @@ if( count($promoterquotes) + count($quotes) > 0 )
 				}
 			}
 			echo '<li>"'.$description.'" <br/>
-	<cite>- '.$name.', <a href="http://'.parseLink($link).'">'.$website.'</a></cite></li>';
+	<cite>- '.$name.', <a href="http://'.$link.'">'.$website.'</a></cite></li>';
 		}
 	}
 	
@@ -682,7 +727,7 @@ if( count($promoterquotes) + count($quotes) > 0 )
 				}
 			}
 			echo '<li>"'.$description.'" <br/>
-	<cite>- '.$name.', <a href="http://'.parseLink($link).'">'.$website.'</a></cite></li>';
+	<cite>- '.$name.', <a href="http://'.$link.'">'.$website.'</a></cite></li>';
 		}
 	}
 	
@@ -697,27 +742,16 @@ if( $press_request == TRUE )
 <p>Please fill in your e-mail address below and we\'ll get back to you as soon as a press copy is available for you.<br/>
 <div id="mailform">
 
-	<form id="pressrequest" class="uk-form" action="mail.php" method="post">
-		<input type="hidden" value="'. GAME_TITLE .'" id="gametitle" name="gametitle">
-		<input type="hidden" value="'. $game .'" id="game" name="game">
+	<form class="uk-form">
 		<fieldset>
-			<input type="text" placeholder="me@website.com" id="from" name="from">, writing for <input type="text" placeholder="company name" id="outlet" name="outlet"> would like to <button class="uk-button" id="submit-button">request a press copy</button>
+			<input type="text" placeholder="me@website.com" id="from">, writing for <input type="text" placeholder="company name" id="outlet"> would like to <button class="uk-button" id="submit-button">request a press copy</button>
 		</fieldset>
 	</form>
 	<p>Alternatively, you can always request a press copy by <a href="#contact">sending us a quick email</a>.
+</div>
+<div id="mailsuccess" style="display:none;">
+	Thanks for the request. We\'ll be in touch as soon as possible. In the meanwhile, feel free to <a href="#contact">follow up with any questions or requests you might have!</a>
 </div>';
-
-	if (isset($_GET['mail'])) {
-		if ($_GET['mail'] == 'success') {
-			echo '<div class="uk-alert uk-alert-success">Thanks for the request. We\'ll be in touch as soon as possible. In the meanwhile, feel free to <a href="#contact">follow up with any questions or requests you might have!</a></div>';
-		} else if ($_GET['mail'] == 'fromerror') {
-			echo '<div class="uk-alert uk-alert-danger">We could not validate your email address. Please try contacting us using <a href="#contact">one of the options listed here</a>.</div>';
-		} else if ($_GET['mail'] == 'emptyerror') {
-			echo '<div class="uk-alert uk-alert-danger">Please fill in all the fields or try contacting us using <a href="#contact">one of the options listed here</a>.</div>';
-		} else {
-			echo '<div class="uk-alert uk-alert-danger">We failed to send the email. Please try contacting us using <a href="#contact">one of the options listed here</a>.</div>';
-		}
-	}
 
 	echo '<hr>';
 }
@@ -750,12 +784,12 @@ for( $i = 0; $i < count($additionals); $i++ )
 	}
 
 	if( strpos(parseLink($link),'/') !== 0 ) {
-		$linkTitle = substr(parseLink($link),0,strpos(parseLink($link),'/'));
+		$linkTitle = parseLink($link);
 	} else { $linkTitle = $link; }
 	
 	echo '<p>
 	<strong>'.$title.'</strong><br/>
-	'.$description.' <a href="http://'.parseLink($link).'" alt="'.parseLink($link).'">'.$linkTitle.'</a>.
+	'.$description.' <a href="'.$link.'" alt="'.$link.'">'.$linkTitle.'</a>.
 </p>';
 }
 
@@ -802,7 +836,7 @@ for( $i = 0; $i < count($credits); $i++ )
 	}
 	else
 	{
-		echo '<strong>'.$person.'</strong><br/><a href="http://'.parseLink($website).'">'.$role.'</a>';
+		echo '<strong>'.$person.'</strong><br/><a href="'.$website.'">'.$role.'</a>';
 	}
 
 	echo '</p>';
@@ -832,7 +866,7 @@ for( $i = 0; $i < count($contacts); $i++ )
 		echo '<strong>'.$name.'</strong><br/><a href="mailto:'.$mail.'">'.$mail.'</a>';
 	}
 	if( strlen($link) > 0 && strlen($mail) == 0 ) {
-		echo '<strong>'.$name.'</strong><br/><a href="http://'.parseLink($link).'">'.parseLink($link).'</a>';
+		echo '<strong>'.$name.'</strong><br/><a href="'.$link.'">'.parseLink($link).'</a>';
 	}
 
 	echo '</p>';
